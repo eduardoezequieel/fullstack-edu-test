@@ -1,0 +1,37 @@
+{
+  "name": "fullstack-edu-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fullstack monorepo with NestJS backend and Next.js frontend",
+  "scripts": {
+    "dev:frontend": "pnpm --filter @fullstack-edu-test/frontend dev",
+    "dev:backend": "pnpm --filter @fullstack-edu-test/backend start:dev",
+    "build": "pnpm --stream -r build",
+    "build:frontend": "pnpm --filter @fullstack-edu-test/frontend build",
+    "build:backend": "pnpm --filter @fullstack-edu-test/backend build",
+    "start:frontend": "pnpm --filter @fullstack-edu-test/frontend start",
+    "start:backend": "pnpm --filter @fullstack-edu-test/backend start:prod",
+    "lint": "pnpm --stream -r lint",
+    "test": "pnpm --stream -r test",
+    "check-types": "pnpm --stream -r check-types",
+    "clean": "pnpm --stream -r clean",
+    "install:all": "pnpm install",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"apps/**/*.{ts,tsx,js,jsx,json,css,md}\""
+  },
+  "keywords": [
+    "monorepo",
+    "pnpm",
+    "workspace",
+    "nestjs",
+    "nextjs"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.7.2"
+  }
+}
