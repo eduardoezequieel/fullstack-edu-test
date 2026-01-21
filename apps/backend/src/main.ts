@@ -1,8 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { seedDatabase } from './seed';
 
 async function bootstrap() {
+  // Ejecutar seed antes de iniciar la aplicación
+  await seedDatabase();
+
   const app = await NestFactory.create(AppModule);
 
   // Enable validation globally

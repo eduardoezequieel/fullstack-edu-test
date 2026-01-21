@@ -1,98 +1,126 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend - Sistema de Gestión de Estudiantes
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST construida con NestJS para la gestión de estudiantes, incluyendo autenticación JWT, importación de archivos CSV/Excel y validación de datos.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Arquitectura
 
-## Description
+El proyecto utiliza la **arquitectura modular de NestJS** con los siguientes principios:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Módulos por dominio**: Separación clara entre `auth`, `users` y `students`, cada uno con su responsabilidad específica
+- **Inyección de dependencias**: Facilita el testing y mantiene bajo acoplamiento entre componentes
+- **DTOs con validación**: `class-validator` asegura integridad de datos en el boundary de la aplicación
+- **TypeORM con Repository Pattern**: Abstracción de la capa de datos que permite cambiar el motor de BD sin afectar la lógica de negocio
+- **Guards y Strategies**: Autenticación JWT desacoplada usando Passport.js para proteger rutas de forma declarativa
 
-## Project setup
+Esta arquitectura es escalable, testeable y sigue las mejores prácticas de NestJS, permitiendo agregar nuevos módulos sin afectar los existentes.
 
-```bash
-$ pnpm install
+## Tecnologías
+
+- **NestJS** v11 - Framework backend
+- **TypeORM** - ORM para manejo de base de datos
+- **SQLite** (better-sqlite3) - Base de datos
+- **Passport JWT** - Autenticación
+- **XLSX** - Procesamiento de archivos Excel/CSV
+- **class-validator** - Validación de DTOs
+- **bcrypt** - Hash de contraseñas
+
+## Estructura del Proyecto
+
+```
+src/
+├── auth/              # Módulo de autenticación
+│   ├── dto/          # DTOs para login y registro
+│   ├── jwt.strategy.ts
+│   └── jwt-auth.guard.ts
+├── users/            # Módulo de usuarios
+│   ├── user.entity.ts
+│   └── users.service.ts
+└── students/         # Módulo de estudiantes
+    ├── dto/          # DTOs con validaciones
+    ├── student.entity.ts
+    ├── students.controller.ts
+    └── students.service.ts
 ```
 
-## Compile and run the project
+## Instalación y Ejecución
 
 ```bash
-# development
-$ pnpm run start
+# Instalar dependencias
+$ pnpm install
 
-# watch mode
+# Ejecutar seed para datos iniciales
+$ pnpm run seed
+
+# Modo desarrollo
 $ pnpm run start:dev
 
-# production mode
+# Modo producción
 $ pnpm run start:prod
 ```
 
-## Run tests
+## API Endpoints
 
-```bash
-# unit tests
-$ pnpm run test
+### Autenticación
 
-# e2e tests
-$ pnpm run test:e2e
+- `POST /auth/register` - Registro de usuario
+- `POST /auth/login` - Login (retorna JWT)
+- `GET /auth/me` - Obtener usuario actual (requiere JWT)
 
-# test coverage
-$ pnpm run test:cov
+### Estudiantes
+
+- `GET /students` - Listar todos los estudiantes
+- `GET /students/stats` - Estadísticas (total, activos, graduados)
+- `POST /students` - Crear estudiante
+- `POST /students/import` - Importar desde CSV/Excel
+- `DELETE /students/truncate` - Eliminar todos los estudiantes
+- `DELETE /students/:id` - Eliminar estudiante
+
+## Variables de Entorno
+
+```env
+JWT_SECRET=your_jwt_secret_key
+PORT=4000
 ```
 
-## Deployment
+## Base de Datos
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+El proyecto usa SQLite con TypeORM. La base de datos se crea automáticamente en `database.sqlite`.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Seed Data
+
+Para poblar la base de datos con datos iniciales:
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+pnpm run seed
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Esto crea un usuario de prueba:
 
-## Resources
+- Email: `admin@admin.com`
+- Password: `admin123`
 
-Check out a few resources that may come in handy when working with NestJS:
+## Validaciones
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Los estudiantes deben cumplir:
 
-## Support
+- **name**: String no vacío
+- **startYear**: Entre 1900 y año actual
+- **nue**: String único
+- **status**: "active" o "graduated"
+- **graduationAverage**: 0-10 (obligatorio si status es "graduated")
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Importación de Archivos
 
-## Stay in touch
+El endpoint `/students/import` acepta archivos CSV y Excel (.xls, .xlsx) con las siguientes columnas:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- `nombre_estudiante`
+- `anio_inicio`
+- `nue`
+- `estado` (activo/graduado)
+- `promedio_graduacion`
+
+El sistema procesa cada fila independientemente y retorna un resumen con éxitos y errores detallados por fila.
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+[MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

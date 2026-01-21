@@ -1,36 +1,188 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend - Sistema de Gestión de Estudiantes
 
-## Getting Started
+Aplicación web construida con Next.js 14 para la gestión de estudiantes, incluyendo autenticación, importación de archivos y visualización de datos en tiempo real.
 
-First, run the development server:
+## Arquitectura
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+El proyecto utiliza **Feature-Based Architecture** con los siguientes principios:
+
+- **Organización por features**: Cada funcionalidad (`auth`, `students`, `dashboard`) contiene sus propios componentes, hooks, tipos y schemas, facilitando la localización de código y el desarrollo en equipo
+- **Custom Hooks Pattern**: Encapsulación de lógica con `useSignIn`, `useStudents`, `useImportStudents`, separando la lógica de negocio de la presentación
+- **Server vs Client Components**: Separación clara entre componentes de servidor (para fetch inicial) y cliente (para interactividad), optimizando el rendimiento
+- **TanStack Query**: Manejo de estado del servidor con cache automático, invalidación inteligente y estados de carga/error predecibles
+- **Schema Validation**: Validación de formularios con Zod en el cliente antes de enviar requests
+- **Middleware Proxy**: Autenticación server-side que protege rutas y reenvía cookies HTTP-only de forma segura
+
+Esta arquitectura es mantenible, escalable y permite que cada feature sea independiente, facilitando testing y desarrollo paralelo.
+
+## Tecnologías
+
+- **Next.js 14** - Framework React con App Router
+- **TypeScript** - Tipado estático
+- **TanStack Query** v5 - Estado del servidor y cache
+- **Tailwind CSS** - Estilos utility-first
+- **shadcn/ui** - Componentes UI accesibles
+- **Zod** - Validación de schemas
+- **Axios** - Cliente HTTP
+- **Sonner** - Toast notifications
+- **js-cookie** - Manejo de cookies
+
+## Estructura del Proyecto
+
+```
+app/                      # App Router de Next.js
+├── dashboard/           # Rutas protegidas
+│   ├── layout.tsx      # Layout con sidebar
+│   ├── page.tsx        # Dashboard principal
+│   └── students/       # Página de estudiantes
+components/              # Componentes compartidos
+├── providers/          # Context providers (Query, Theme)
+└── ui/                 # Componentes UI de shadcn
+features/               # Feature-Based Architecture
+├── auth/
+│   ├── components/     # LoginForm
+│   ├── hooks/         # useSignIn
+│   ├── lib/           # auth.server.ts (server-side)
+│   ├── schemas/       # Validaciones con Zod
+│   └── types/         # TypeScript types
+├── dashboard/
+│   └── components/    # DashboardStats, DashboardSidebar
+└── students/
+    ├── components/    # StudentsTable, ImportStudentsDialog
+    ├── hooks/        # useStudents, useImportStudents
+    ├── lib/          # students.server.ts
+    └── types/        # Student interface
+lib/                   # Utilidades compartidas
+├── http.ts           # Cliente HTTP con interceptores
+└── utils.ts          # Helpers (cn, etc.)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Instalación y Ejecución
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Instalar dependencias
+$ pnpm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Modo desarrollo
+$ pnpm run dev
 
-## Learn More
+# Build de producción
+$ pnpm run build
 
-To learn more about Next.js, take a look at the following resources:
+# Ejecutar producción
+$ pnpm run start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+La aplicación estará disponible en [http://localhost:3000](http://localhost:3000)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Variables de Entorno
 
-## Deploy on Vercel
+```env
+# URL del backend
+API_URL=http://localhost:4000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Características Principales
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Autenticación
+
+- Login con validación de formulario usando Zod
+- JWT almacenado en HTTP-only cookie
+- Middleware que protege rutas `/dashboard/*`
+- Redirección automática según estado de autenticación
+
+### Dashboard
+
+- Estadísticas en tiempo real (total, activos, graduados)
+- Datos fetched server-side para mejor SEO y performance
+- Auto-refresh después de operaciones (import, truncate)
+
+### Gestión de Estudiantes
+
+- Tabla con todos los estudiantes
+- Importación de archivos CSV/Excel con validación
+- Diálogo de errores detallados por fila
+- Estados de carga con skeletons
+- Validación de promedios (0-10)
+- Botón para vaciar tabla con confirmación
+
+### UX/UI
+
+- Dark mode con persistencia
+- Toasts informativos con Sonner
+- Componentes accesibles de shadcn/ui
+- Responsive design con Tailwind
+- Loading states y feedback visual
+
+## Flujo de Datos
+
+### Server Components
+
+1. `dashboard/page.tsx` obtiene stats con `getStudentStats()` server-side
+2. Datos se pasan como props a componentes cliente
+3. `router.refresh()` actualiza datos del servidor cuando es necesario
+
+### Client Components
+
+1. TanStack Query maneja el estado del servidor con query keys
+2. Mutations invalidan queries relacionadas automáticamente
+3. HTTP interceptor agrega headers de autenticación
+4. Error boundaries manejan errores de forma centralizada
+
+## Validaciones
+
+Los formularios usan Zod para validación:
+
+**Login:**
+
+- Email válido
+- Password mínimo 6 caracteres
+
+**Importación:**
+
+- Archivo CSV/Excel requerido
+- Validación server-side de estructura
+- Errores mostrados por fila en diálogo
+
+## Middleware y Autenticación
+
+El archivo `proxy.ts` actúa como middleware que:
+
+- Valida JWT en requests protegidos
+- Reenvía cookies HTTP-only al backend
+- Redirige usuarios no autenticados a login
+- Protege todas las rutas bajo `/dashboard/*`
+
+## Componentes Reutilizables
+
+Todos los componentes UI están en `components/ui/`:
+
+- `button`, `card`, `dialog`, `input`, `label`
+- Construidos con Radix UI y Tailwind
+- Accesibles y personalizables
+- Importados desde shadcn/ui
+
+## Scripts
+
+```bash
+# Desarrollo
+$ pnpm dev
+
+# Build
+$ pnpm build
+
+# Producción
+$ pnpm start
+
+# Linting
+$ pnpm lint
+```
+
+## Integración con Backend
+
+El frontend se comunica con el backend en `http://localhost:4000`:
+
+- Autenticación: `/auth/login`, `/auth/register`, `/auth/me`
+- Estudiantes: `/students`, `/students/stats`, `/students/import`, `/students/truncate`
+
+Ver documentación del backend para detalles de la API.
