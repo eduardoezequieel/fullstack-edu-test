@@ -15,10 +15,11 @@ out/
 .next/
 *.tsbuildinfo
 
-# Prisma
+# Database
+*.sqlite
+*.sqlite-journal
 *.db
 *.db-journal
-generated/
 
 # Testing
 coverage/

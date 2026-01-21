@@ -1,96 +1,156 @@
-# Fullstack Test - Eduardo
+# Sistema de Gestión de Estudiantes - Fullstack
 
-A fullstack monorepo using pnpm workspaces, featuring a NestJS backend and Next.js frontend.
+Monorepo con arquitectura fullstack para la gestión de estudiantes, construido con **NestJS** (backend) y **Next.js 14** (frontend).
 
-## 🏗️ Project Structure
+## 🏗️ Arquitectura del Monorepo
+
+Este proyecto usa **pnpm workspaces** para manejar un monorepo con múltiples aplicaciones:
 
 ```
 fullstack-test-edu/
 ├── apps/
-│   ├── backend/          # NestJS API
-│   └── frontend/         # Next.js application
-├── package.json          # Root workspace configuration
-└── pnpm-workspace.yaml   # pnpm workspace definition
+│   ├── backend/          # API REST con NestJS
+│   └── frontend/         # Aplicación web con Next.js
+├── package.json          # Scripts del workspace
+└── pnpm-workspace.yaml   # Configuración de workspace
 ```
 
-## 🚀 Getting Started
+**Ventajas del monorepo:**
 
-### Prerequisites
+- Dependencias compartidas (instalación única)
+- Scripts centralizados para dev, build y deploy
+- Sincronización de versiones y configuraciones
+- Desarrollo simultáneo de frontend y backend
 
-- Node.js >= 18.0.0
-- pnpm >= 8.0.0
+## 🚀 Inicio Rápido
 
-### Installation
+### Prerrequisitos
+
+- **Node.js** >= 18.0.0
+- **pnpm** >= 8.0.0
 
 ```bash
+# Instalar pnpm globalmente si no lo tienes
+npm install -g pnpm
+```
+
+### Instalación
+
+```bash
+# Instalar todas las dependencias del monorepo
 pnpm install
 ```
 
-## 📜 Available Scripts
-
-### Development
+### Desarrollo
 
 ```bash
-# Run both apps in development mode
-pnpm dev
+# Ejecutar ambas aplicaciones en modo desarrollo
+pnpm dev:frontend    # Frontend en http://localhost:3000
+pnpm dev:backend     # Backend en http://localhost:4000
 
-# Run frontend only
-pnpm dev:frontend
+# O ejecutarlas en terminales separadas para mejor control
+```
 
-# Run backend only
-pnpm dev:backend
+## 📦 Aplicaciones
+
+### Backend - API REST
+
+- **Framework**: NestJS v11 + TypeORM + SQLite
+- **Puerto**: 4000
+- **Características**:
+  - Autenticación JWT
+  - Importación CSV/Excel
+  - Validación con class-validator
+  - Arquitectura modular
+- **Documentación**: Ver [apps/backend/README.md](apps/backend/README.md)
+
+### Frontend - Aplicación Web
+
+- **Framework**: Next.js 14 + React + TypeScript
+- **Puerto**: 3000
+- **Características**:
+  - Feature-based architecture
+  - TanStack Query para estado del servidor
+  - Componentes shadcn/ui + Tailwind CSS
+  - Server-side rendering
+- **Documentación**: Ver [apps/frontend/README.md](apps/frontend/README.md)
+
+## 📜 Scripts Disponibles
+
+### Desarrollo
+
+```bash
+pnpm dev:frontend       # Frontend en modo desarrollo
+pnpm dev:backend        # Backend en modo desarrollo
 ```
 
 ### Build
 
 ```bash
-# Build all apps
-pnpm build
-
-# Build frontend only
-pnpm build:frontend
-
-# Build backend only
-pnpm build:backend
+pnpm build              # Build de todas las apps
+pnpm build:frontend     # Build solo frontend
+pnpm build:backend      # Build solo backend
 ```
 
-### Production
+### Producción
 
 ```bash
-# Start frontend in production mode
-pnpm start:frontend
-
-# Start backend in production mode
-pnpm start:backend
+pnpm start:frontend     # Ejecutar frontend en producción
+pnpm start:backend      # Ejecutar backend en producción
 ```
 
-### Other Commands
+### Utilidades
 
 ```bash
-# Run linting on all apps
-pnpm lint
-
-# Run tests on all apps
-pnpm test
+pnpm lint               # Linting en todas las apps
+pnpm format             # Formatear código con Prettier
+pnpm clean              # Limpiar archivos de build
 ```
 
-## 📦 Apps
+## 🔧 Comandos de pnpm Workspace
 
-### Backend (@fullstack-edu-test/backend)
-- **Framework**: NestJS
-- **Port**: 3000 (default)
-- **Location**: `apps/backend`
+```bash
+# Ejecutar comando en app específica
+pnpm --filter @fullstack-edu-test/backend <comando>
+pnpm --filter @fullstack-edu-test/frontend <comando>
+```
 
-### Frontend (@fullstack-edu-test/frontend)
-- **Framework**: Next.js 16
-- **Styling**: Tailwind CSS 4
-- **Port**: 3001 (default)
-- **Location**: `apps/frontend`
+## 🗄️ Base de Datos
 
-## 🛠️ Technologies
+El backend usa **SQLite** con la base de datos en `apps/backend/database.sqlite`.
 
-- **Monorepo Tool**: pnpm workspaces
-- **Backend**: NestJS, TypeScript
-- **Frontend**: Next.js, React 19, TypeScript, Tailwind CSS
-- **Testing**: Jest
-- **Linting**: ESLint
+**Usuario de prueba:**
+
+- Email: `admin@admin.com`
+- Password: `admin123`
+
+## 🛠️ Stack Tecnológico
+
+**Backend:**
+
+- NestJS, TypeORM, SQLite (better-sqlite3)
+- Passport JWT, bcrypt, XLSX
+- class-validator, class-transformer
+
+**Frontend:**
+
+- Next.js 14, React, TypeScript
+- TanStack Query v5, Axios
+- Tailwind CSS, shadcn/ui, Sonner
+- Zod para validación
+
+**Monorepo:**
+
+- pnpm workspaces
+- Prettier con plugin de Tailwind
+- ESLint compartido
+
+## 📚 Documentación Adicional
+
+- **Backend**: [apps/backend/README.md](apps/backend/README.md) - Arquitectura modular, endpoints, validaciones
+- **Frontend**: [apps/frontend/README.md](apps/frontend/README.md) - Feature-based architecture, componentes, flujo de datos
+
+Configurar variables de entorno según el ambiente:
+
+- Backend: `JWT_SECRET`, `PORT`
+- Frontend: `API_URL`
